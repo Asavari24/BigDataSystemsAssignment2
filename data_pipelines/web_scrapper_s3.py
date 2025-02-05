@@ -1,4 +1,6 @@
+import io
 import os
+import zipfile
 import boto3
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
@@ -31,6 +33,7 @@ def finance_data_scrapper(url, bucket_name):
         'Connection': 'keep-alive',
         'Cache-Control': 'max-age=0'
     }
+
     
     # Get the webpage content
     response1 = requests.get(url, headers=headers)
@@ -50,20 +53,43 @@ def finance_data_scrapper(url, bucket_name):
             
             try:
                 # Stream the file
-                file_response = requests.get(href, stream=True)
+                file_response = requests.get(href, stream=True, headers=headers)
 
-                # Get filename
-                filename = link.get('download') or href.split('/')[-1]
+                if file_response.status_code == 200:
 
-                filepath = f'importFiles/{filename}'
-                data_path = upload_file_to_s3(file_response.raw, bucket_name, filepath)
+                    #Create BytesIO object to hold zip content in memory
+                    zip_buffer = io.BytesIO(file_response.content)
+
+                    # Get filename
+                    main_file_name = link.get('download') or href.split('/')[-1]
+                    base, extension = os.path.splitext(main_file_name)
+
+                    try:
+
+                        # Extract and upload each file from zip
+                        with zipfile.ZipFile(zip_buffer) as zip_ref:
+
+                            for file_name in zip_ref.namelist():
+                                # Read file content from zip
+                                file_content = zip_ref.read(file_name)
+
+                                # Upload individual file to S3
+                                file_buffer = io.BytesIO(file_content)
+
+                                filepath = f'importFiles/{base}/{file_name}'
+                                upload_file_to_s3(file_buffer, bucket_name, filepath)
+
+                                print(f'Uploaded {base}/{file_name} to S3 bucket {bucket_name}')
+
+                    except zipfile.BadZipFile:
+                        print("Error: Invalid ZIP file format")
+
+                else:
+                    print(f'Failed to download zip file: {file_response.status_code}')
 
 
             except Exception as e:
-                print(f"Error downloading {href}: {e}")
-
-
-    return data_path
+                print(f"Error while getting response {href}: {e}")
 
 
 finance_data_link = 'https://www.sec.gov/data-research/sec-markets-data/financial-statement-data-sets'
