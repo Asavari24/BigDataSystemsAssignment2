@@ -1,0 +1,8 @@
+apache-airflow-providers-snowflake
+apache-airflow-providers-amazon
+bs4
+pandas
+requests
+boto3
+python-dotenv
+numpy
