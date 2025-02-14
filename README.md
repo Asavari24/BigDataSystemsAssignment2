@@ -1,4 +1,5 @@
 **Automated SEC Financial Data Extraction & Transformation System**
+
 **Project Summary**
 This project automates the extraction, transformation, and storage of SEC Financial Statement Data Sets to support financial analysts in fundamental analysis. The pipeline is built using Apache Airflow for automation, DBT for data transformation, Snowflake for storage, and a FastAPI backend connected to a Streamlit web interface for querying financial data.
 
