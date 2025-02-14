@@ -78,6 +78,7 @@ JSON Transformation improves accessibility but increases processing complexity.
 Denormalized Fact Tables enhance query performance at the cost of storage redundancy.
 
 **Conclusion & Next Steps**
+
 ✅ Enhance JSON Processing → Optimize JSON transformations for better structuring.
 ✅ Optimize Pipeline Efficiency → Improve Airflow scheduling and execution speed.
 ✅ Deploy for Real-World Testing → Implement in a live financial analysis environment.
@@ -86,7 +87,9 @@ Denormalized Fact Tables enhance query performance at the cost of storage redund
 This project demonstrates the feasibility of automating SEC financial statement processing and provides a scalable approach for financial data management.
 
 **Submission Requirements**
+
 **GitHub Repository**
+
 Includes all source code, SQL scripts, DBT models, and Airflow configurations.
 GitHub Issues for tracking tasks.
 Documentation & project demo video.
