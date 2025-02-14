@@ -1,54 +1,51 @@
-**#Automated Financial Data Extraction & Transformation System - Assignment 2**
-Project Summary
-This project focuses on automating the extraction, transformation, and storage of financial statement data from the SEC Financial Statement Data Sets. The goal is to develop a fully functional data pipeline using Apache Airflow that extracts, processes, and loads financial data into Snowflake for analysis. The extracted data is transformed into multiple formats, including raw staging, JSON transformation, and denormalized fact tables, to optimize storage and retrieval efficiency.
+**Automated SEC Financial Data Extraction & Transformation System**
+**Project Summary**
+This project automates the extraction, transformation, and storage of SEC Financial Statement Data Sets to support financial analysts in fundamental analysis. The pipeline is built using Apache Airflow for automation, DBT for data transformation, Snowflake for storage, and a FastAPI backend connected to a Streamlit web interface for querying financial data.
 
-Overview
-The project explores the feasibility of different data storage strategies and transformation techniques to support financial analysts in conducting fundamental analysis of US public companies. The end-to-end pipeline integrates multiple technologies:
+**Overview**
+The system follows a structured approach:
 
-Data Extraction: Scraping SEC financial statement datasets
-Data Storage: Implementing raw staging, JSON transformation, and denormalized fact tables
-Data Transformation: Using DBT for schema validation and transformation
-Operational Pipeline: Automating data processing with Apache Airflow
-Data Access: Developing a FastAPI backend and a Streamlit user interface for querying financial data
-Key Features
+Data Extraction → Scrape SEC datasets from the Markets Data page.
+Data Storage → Process data into three formats: Raw Staging, JSON Transformation, Denormalized Fact Tables.
+Data Transformation → Use DBT for schema validation, data integrity, and transformation logic.
+Pipeline Automation → Implement an Airflow DAG to process, validate, and store data in Amazon S3 and Snowflake.
+Data Access & UI → Develop a FastAPI backend and a Streamlit UI for interactive data retrieval and visualization.
+
+**Key Features**
 1. Data Extraction & Processing
-SEC Data Scraping
-Scrape dataset links from the SEC Markets Data page.
-Parse financial statement data from structured SEC datasets.
-2. Data Storage Design
-Raw Staging: Store SEC data in its original format.
-JSON Transformation: Convert structured data into JSON format using SecFinancialStatementConverter for flexible querying.
-Denormalized Fact Tables: Structure SEC data into three denormalized tables:
-Balance Sheet
-Income Statement
-Cash Flow Statement
-Each table includes essential identifiers such as ticker, CIK, filing date, fiscal year, and period.
+Scrape & download SEC datasets using BeautifulSoup and custom scripts.
+Parse & structure financial data for downstream processing.
+
+2. Data Storage Strategies
+Raw Staging → Store SEC data as-is for archival and auditing.
+JSON Transformation → Convert structured data into JSON format for flexible querying.
+Denormalized Fact Tables → Create structured Balance Sheet, Income Statement, and Cash Flow tables with key identifiers like ticker, CIK, filing date, and fiscal year.
 
 3. Data Transformation & Validation using DBT
-Implement DBT models for validating and transforming data.
-Ensure schema validation, referential integrity, and transformation accuracy.
-Perform data quality tests on the transformed tables.
-Document transformation strategies and testing methodologies.
+Define staging models for SUB, TAG, NUM, and PRE tables.
+Validate schema for referential integrity and transformation correctness.
+Perform data quality tests to prevent duplicate entries and incorrect mappings.
+
 4. Data Pipeline Automation with Apache Airflow
-Pipeline Components:
-Extract, validate, and store datasets in S3 for intermediate processing.
-Process data using JSON or RDBMS storage approaches.
-Automate scheduling and execution with Apache Airflow.
-Pipeline Configurations:
+Automate data flow from S3 to Snowflake using Airflow DAGs.
+Implement job scheduling with configurations for:
 Year and quarter-based job definitions
-Input/output staging areas (S3 and Snowflake)
-Data validation and transformation methodologies
-5. Data Upload Testing
-Develop and execute tests for ensuring data integrity.
-Validate data uploads across raw staging, JSON, and denormalized fact tables.
-Document findings and provide insights into pipeline efficiency.
+Input/output staging areas
+Processing methodologies (JSON vs. RDBMS)
+Ensure pipeline reusability across different datasets.
+
+5. Post-Upload Testing & Validation
+Verify data upload into Snowflake for all storage formats.
+Develop automated tests to check data consistency.
+Document findings and evaluate the pipeline's performance.
+
 6. Web Interface & API Development
 FastAPI Backend:
-/fetch API: Retrieves processed financial data from Snowflake.
-/upload API: Uploads and processes SEC datasets based on selected format (raw, JSON, or RDBMS).
-Streamlit Interface:
-Users upload datasets and trigger processing.
-Provides interactive data visualization and downloadable reports.
+/fetch → Retrieve processed financial data from Snowflake.
+/upload → Upload and process SEC datasets.
+Streamlit UI:
+Upload datasets and trigger processing.
+Query and visualize financial data.
 Evaluation & Findings
 Performance Comparison
 Feature	Raw Staging	JSON Transformation	Denormalized Fact Tables
@@ -57,27 +54,31 @@ Query Performance	Low	Moderate	High
 Scalability	High	High	Moderate
 Ease of Integration	High	Moderate	High
 Transformation Complexity	Low	High	High
-Key Takeaways
+
+**Key Takeaways**
 Raw Staging is useful for retaining original datasets but lacks structured querying capabilities.
-JSON Transformation improves accessibility and allows for more flexible queries but increases processing complexity.
+JSON Transformation improves accessibility but increases processing complexity.
 Denormalized Fact Tables enhance query performance at the cost of storage redundancy.
-Conclusion & Next Steps
-Enhance JSON Processing: Optimize JSON transformations for better data structuring.
-Optimize Pipeline Performance: Improve Airflow scheduling and execution efficiency.
-Deploy for Real-World Testing: Implement the system in a live financial analysis environment.
-Assess Cost Efficiency: Compare long-term costs of different storage methods.
+
+**Conclusion & Next Steps**
+✅ Enhance JSON Processing → Optimize JSON transformations for better structuring.
+✅ Optimize Pipeline Efficiency → Improve Airflow scheduling and execution speed.
+✅ Deploy for Real-World Testing → Implement in a live financial analysis environment.
+✅ Assess Cost Efficiency → Compare long-term costs of different storage methods.
+
 This project demonstrates the feasibility of automating SEC financial statement processing and provides a scalable approach for financial data management.
 
-Submission Requirements
-GitHub Repository
+**Submission Requirements**
+**GitHub Repository**
 Includes all source code, SQL scripts, DBT models, and Airflow configurations.
-GitHub Issues for task tracking.
-Documentation and a project overview video.
+GitHub Issues for tracking tasks.
+Documentation & project demo video.
 README.md
 Repository structure, setup instructions, and usage guide.
 AI Use Disclosure
-Documenting AI tools used (if applicable).
-Resources
+Document any AI tools used in the project.
+
+**Resources**
 SEC Financial Statement Data Sets
 SEC Financial Statement Converter (GitHub)
 SEC Markets Data
