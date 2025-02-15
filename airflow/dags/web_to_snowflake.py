@@ -111,7 +111,7 @@ create_stage = SQLExecuteQueryOperator(
     task_id='create_s3_stage',
     conn_id='snowflake_default',
     sql="""
-    CREATE STAGE IF NOT EXISTS my_s3_stage
+    CREATE STAGE IF NOT EXISTS my_s3_stage_2016q4
     URL='s3://bigdatasystems2/exportFiles/2016q4/'
     CREDENTIALS=(AWS_KEY_ID='{{ conn.aws_default.login }}'
                 AWS_SECRET_KEY='{{ conn.aws_default.password }}');
