@@ -211,7 +211,7 @@ def get_converted_files(bucket_name, foldername):
 
 
 #bucket_name = 'bigdatasystems2'
-#foldername = '2009q2'
+#foldername = '2016q4'
 
 #get_converted_files(bucket_name, foldername)
 #print("Text to json conversion and S3 upload finished")

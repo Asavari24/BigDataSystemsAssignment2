@@ -3,7 +3,7 @@ sources:
     database: bigdatasystems_db
     schema: airflow_s3
     tables:
-      - name: sec_2009q2
+      - name: sec_2016q4
         columns:
           - name: city
           - name: country

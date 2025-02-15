@@ -65,7 +65,7 @@ scrape_task = PythonOperator(
     op_kwargs={
             'url': 'https://www.sec.gov/data-research/sec-markets-data/financial-statement-data-sets',
             'bucket_name': 'bigdatasystems2',
-            'req_folder': '2009q2'
+            'req_folder': '2016q4'
         },
     #provide_context=True,
     dag=dag
@@ -77,7 +77,7 @@ process_task = PythonOperator(
     python_callable=get_converted_files,
     op_kwargs={
             'bucket_name': 'bigdatasystems2',
-            'foldername': '2009q2'
+            'foldername': '2016q4'
         },
     #provide_context=True,
     dag=dag
@@ -89,7 +89,8 @@ create_table = SQLExecuteQueryOperator(
     task_id='create_snowflake_table',
     conn_id='snowflake_default',
     sql="""
-    CREATE OR REPLACE TABLE sec_2009q2 (
+    CREATE OR REPLACE TABLE sec_2016q4 (
+        id int PRIMARY KEY IDENTITY(1,1),
         city string,
         country string,
         data variant,
@@ -111,7 +112,7 @@ create_stage = SQLExecuteQueryOperator(
     conn_id='snowflake_default',
     sql="""
     CREATE STAGE IF NOT EXISTS my_s3_stage
-    URL='s3://bigdatasystems2/exportFiles/2009q2/'
+    URL='s3://bigdatasystems2/exportFiles/2016q4/'
     CREDENTIALS=(AWS_KEY_ID='{{ conn.aws_default.login }}'
                 AWS_SECRET_KEY='{{ conn.aws_default.password }}');
     """,
@@ -138,7 +139,7 @@ load_to_snowflake = SQLExecuteQueryOperator(
     task_id='load_to_snowflake',
     conn_id='snowflake_default',
     sql="""
-    COPY INTO sec_2009q2 (city, country, data, enddate, name, secquarter, startdate, symbol, secyear)
+    COPY INTO sec_2016q4 (city, country, data, enddate, name, secquarter, startdate, symbol, secyear)
     FROM (
         SELECT 
             $1:city::string as city,

@@ -9,11 +9,11 @@ WITH source AS (
     SELECT
         id AS main_id,
         cf.value AS cf_json
-    FROM {{ source('airflow_s3', 'sec_2009q2') }},
+    FROM {{ source('airflow_s3', 'sec_2016q4') }},
     LATERAL FLATTEN(input => data:"cf") AS cf
 ),
 
-sec_2009q2_cf AS (
+sec_2016q4_cf AS (
     SELECT 
         cf_seq.NEXTVAL AS cf_id,
         main_id,
@@ -25,4 +25,4 @@ sec_2009q2_cf AS (
     FROM source
 )
 
-SELECT * FROM sec_2009q2_cf
+SELECT * FROM sec_2016q4_cf

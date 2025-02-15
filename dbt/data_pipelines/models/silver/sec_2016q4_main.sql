@@ -5,7 +5,7 @@
     unique_key='main_id'
 ) }}
 
-WITH sec_2009q2_main AS (
+WITH sec_2016q4_main AS (
     SELECT 
         id AS main_id,
         city,
@@ -16,8 +16,8 @@ WITH sec_2009q2_main AS (
         startdate,
         symbol,
         secyear
-    FROM {{ source('airflow_s3', 'sec_2009q2') }}
+    FROM {{ source('airflow_s3', 'sec_2016q4') }}
 )
 
-SELECT * FROM sec_2009q2_main
+SELECT * FROM sec_2016q4_main
 
