@@ -1,35 +1,29 @@
+
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.snowflake.operators.snowflake import SQLExecuteQueryOperator
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
-from datetime import datetime
+from datetime import datetime, timedelta
 from web_scrapper_s3 import finance_data_scrapper
 from text_to_json_converter import get_converted_files
-from airflow.operators.bash import BashOperator
-
 
 # Default arguments for the DAG
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2024, 1, 1)
+    'start_date': datetime(2024, 1, 1),
     #'retries': 1,
     #'retry_delay': timedelta(minutes=5),
 }
 
 # Create DAG
 dag = DAG(
-    'web_snowflake_dbt_dag',
+    'web_to_snowflake',
     default_args=default_args,
-    description='Scrape web data, load to S3 and Snowflake using dbt',
-    schedule_interval=None,
+    description='Scrape web data and load to Snowflake',
+    schedule_interval='@daily',
     catchup=False
 )
-
-dbt_path = "/opt/dbt"
-
-
-
 
 
 def aws_conn():
@@ -126,6 +120,19 @@ create_stage = SQLExecuteQueryOperator(
 )
 
 
+# Create file format
+#create_file_format = SQLExecuteQueryOperator(
+#    task_id='create_file_format',
+#    conn_id='snowflake_default',
+#    sql="""
+#    CREATE OR REPLACE FILE FORMAT my_json_format
+#        TYPE = 'JSON'
+#        STRIP_OUTER_ARRAY = TRUE
+#        COMPRESSION = GZIP;
+#    """,
+#    dag=dag
+#)
+
 
 # Snowflake Load task
 load_to_snowflake = SQLExecuteQueryOperator(
@@ -153,42 +160,5 @@ load_to_snowflake = SQLExecuteQueryOperator(
 )
 
 
-
-
-
-
-dbt_debug = BashOperator(
-    task_id='dbt_debug',
-    bash_command= f'cd {dbt_path} && dbt debug --profiles-dir /opt/dbt/.dbt',
-    dag=dag
-)
-
-dbt_main_table = BashOperator(
-    task_id='dbt_main_table',
-    bash_command= f'cd {dbt_path} && dbt run --models sec_2016q4_main.sql --profiles-dir /opt/dbt/.dbt',
-    dag=dag
-)
-
-dbt_bs_table = BashOperator(
-    task_id='dbt_bs_table',
-    bash_command= f'cd {dbt_path} && dbt run --models sec_2016q4_bs.sql --profiles-dir /opt/dbt/.dbt',
-    dag=dag
-)
-
-dbt_cf_table = BashOperator(
-    task_id='dbt_cf_table',
-    bash_command= f'cd {dbt_path} && dbt run --models sec_2016q4_cf.sql --profiles-dir /opt/dbt/.dbt',
-    dag=dag
-)
-
-dbt_ic_table = BashOperator(
-    task_id='dbt_ic_table',
-    bash_command= f'cd {dbt_path} && dbt run --model sec_2016q4_ic.sql --profiles-dir /opt/dbt/.dbt',
-    dag=dag
-)
-
-
-
-
 # Set task dependencies
-test_conn_aws >> test_conn_snowflake >> scrape_task >> process_task >> create_table >> create_stage >> load_to_snowflake >> dbt_debug >> dbt_main_table >> [dbt_bs_table, dbt_cf_table, dbt_ic_table]
+test_conn_aws >> test_conn_snowflake >> scrape_task >> process_task >> create_table >> create_stage >> load_to_snowflake
