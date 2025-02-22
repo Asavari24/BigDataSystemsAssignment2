@@ -48,31 +48,19 @@ dbt_main_table = BashOperator(
 
 dbt_bs_table = BashOperator(
     task_id='dbt_bs_table',
-<<<<<<< HEAD
-    bash_command= f'cd {dbt_path} && dbt run --models sec_2009q2_bs.sql --profiles-dir /opt/dbt/.dbt',
-=======
     bash_command= f'cd {dbt_path} && dbt run --models sec_2016q4_bs.sql --profiles-dir /opt/dbt/.dbt',
->>>>>>> pratik_kanade
     dag=dag
 )
 
 dbt_cf_table = BashOperator(
     task_id='dbt_cf_table',
-<<<<<<< HEAD
-    bash_command= f'cd {dbt_path} && dbt run --models sec_2009q2_cf.sql --profiles-dir /opt/dbt/.dbt',
-=======
     bash_command= f'cd {dbt_path} && dbt run --models sec_2016q4_cf.sql --profiles-dir /opt/dbt/.dbt',
->>>>>>> pratik_kanade
     dag=dag
 )
 
 dbt_ic_table = BashOperator(
     task_id='dbt_ic_table',
-<<<<<<< HEAD
-    bash_command= f'cd {dbt_path} && dbt run --model sec_2009q2_ic.sql --profiles-dir /opt/dbt/.dbt',
-=======
     bash_command= f'cd {dbt_path} && dbt run --model sec_2016q4_ic.sql --profiles-dir /opt/dbt/.dbt',
->>>>>>> pratik_kanade
     dag=dag
 )
 
