@@ -1,0 +1,1 @@
+select * from bigdatasystems_db.airflow_s3.sec_2009q2
