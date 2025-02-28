@@ -1,9 +1,11 @@
 **Automated SEC Financial Data Extraction & Transformation System**
 
 **Project Summary**
+
 This project automates the extraction, transformation, and storage of SEC Financial Statement Data Sets to support financial analysts in fundamental analysis. The pipeline is built using Apache Airflow for automation, DBT for data transformation, Snowflake for storage, and a FastAPI backend connected to a Streamlit web interface for querying financial data.
 
 **Overview**
+
 The system follows a structured approach:
 
 Data Extraction → Scrape SEC datasets from the Markets Data page.
@@ -71,6 +73,30 @@ Query Performance	Low	Moderate	High
 Scalability	High	High	Moderate
 Ease of Integration	High	Moderate	High
 Transformation Complexity	Low	High	High
+
+### Steps to deploy and start the application on a cloud server:
+
+1. Use the root user: `sudo su` 
+ 
+2. Activate the virtual environment: `source venv/bin/activate`
+ 
+3. Clone the repository: `git clone https://github.com/Asavari24/BigDataSystemsAssignment2.git`
+ 
+4. Open the cloned repo: `cd BigDataSystemsAssignment2`
+ 
+5. Install the required dependencies: `pip install -r requirements.txt`
+ 
+6. Start the FastAPI server on one terminal: `uvicorn backend.app:app --host 0.0.0.0 --port 8000 --reload`
+
+7. In another terminal, repeat steps 1, 2, 4 and run the below command to start a streamlit application
+
+8. Start the streamlit server on another terminal: `streamlit run frontend/main.py`
+
+### Streamlit Application Link 
+Access the link: http://3.130.104.76:8501/
+
+### Fastapi Link
+Access the link: http://3.130.104.76:8000/docs
 
 **Key Takeaways**
 Raw Staging is useful for retaining original datasets but lacks structured querying capabilities.
