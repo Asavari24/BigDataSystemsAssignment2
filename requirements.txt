@@ -4,6 +4,8 @@ dbt-snowflake
 bs4
 pandas
 requests
+boto3
+python-dotenv
 numpy
 fastapi
 uvicorn
