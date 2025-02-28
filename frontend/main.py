@@ -34,41 +34,71 @@ def call_fastapi(endpoint, params=None):
     except requests.exceptions.RequestException as e:
         st.error(f"Error while calling FastAPI: {e}")
         return None
+    
+
 
 # Streamlit UI layout
 st.title("Financial Data Dashboard")
 
+st.sidebar.title("Navigation")
+
+page = st.sidebar.radio("Select Report", ["Company Details Report", "Balance Sheet & Cash Flow Graph"])
 
 
-# Dropdown to select financial statement type
-statement_type = st.selectbox("Select Financial Statement", ["balance_sheet", "income_statement", "cash_flow", "company_details"])
+if page == "Company Details Report":
 
-if statement_type == 'balance_sheet':
-    statement_type = 'bs'
-elif statement_type == "cash_flow":
-    statement_type = 'cf'
-elif statement_type == 'income_statement':
-    statement_type = 'ic'
-else:
-    statement_type = 'main'
+    st.header("Company Details for Financial Year")
 
-# Input fields for SEC data
-year = st.number_input("Enter Year", min_value=2000, max_value=2030, value=2024, step=1)
-quarter = st.selectbox("Select Quarter", [1, 2, 3, 4])
+    st.divider()
+
+    # Input fields for SEC data
+    year = st.selectbox("Select Year", [2009, 2016])
+    quarter = st.slider("Select Quarter", 1, 4, 1)
+
+    if st.button(f"SEC Data: {year} Q{quarter} Preview"):
+        sec_data = call_fastapi("fetch_sec_data", {"fiscal_year": year, "quarter": quarter, "statement_type": "main"})
+        if sec_data:
+            st.table(sec_data[0:5])
+
+            df = pd.DataFrame(sec_data)
+            csv_data = df.to_csv(index=False).encode('utf-8')
+
+            st.download_button(
+                label=f"Download SEC Data: {year} Q{quarter}",
+                data=csv_data,
+                file_name="sec_data.csv",
+                mime="text/csv"
+            )
+
+elif page == "Balance Sheet & Cash Flow Graph":
+
+    st.header(f"Graph for Sum of Value(USD) for Concept")
+
+    st.divider()
+
+    company =  st.text_input("Enter Company Name")
+    year = st.selectbox("Select Year", [2009, 2016])
+    quarter = st.slider("Select Quarter", 1, 4, 1)
+
+    st.divider()
+
+    statement_type = st.selectbox("Select Financial Statement", ["Balance Sheet", "Cash Flow"])
 
 
+    if statement_type == 'Balance Sheet':
+        statement_type = 'bs'
+    elif statement_type == "Cash Flow":
+        statement_type = 'cf'
 
 
-if st.button("Fetch SEC Data"):
-    sec_data = call_fastapi("fetch_sec_data", {"fiscal_year": year, "quarter": quarter, "statement_type": statement_type})
-    if sec_data:
-        st.table(sec_data)
+    if st.button(f"Bar Graph showing Sum of Values"):
+        graph_data = call_fastapi("fetch_graph", {"fiscal_year": year, "quarter": quarter, "company": company, "statement_type": statement_type})
+        if graph_data:
+            st.bar_chart(graph_data,
+                            x='CONCEPT', y='SUM(VALUE)',
+                            x_label='Concept',
+                            y_label='Sum of Value (USD)'
+                        )
 
 
-
-#if st.button("Export Data to Excel"):
-#    export_result = call_fastapi("export_data", {"fiscal_year": year, "quarter": quarter, "table_name": statement_type})
-#    if export_result:
-#        file_path = export_result["file_path"]
-#        st.write(f"Data exported successfully! Download your file [here](file://{file_path})")
 
