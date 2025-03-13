@@ -74,6 +74,10 @@ Scalability	High	High	Moderate
 Ease of Integration	High	Moderate	High
 Transformation Complexity	Low	High	High
 
+### Architecture Diagram
+
+![Architecure of the data pipeline](https://github.com/Asavari24/BigDataSystemsAssignment2/blob/main/diagrams/sec_data_pipeline_architecture.png)
+
 ### Steps to deploy and start the application on a cloud server:
 
 1. Use the root user: `sudo su` 
