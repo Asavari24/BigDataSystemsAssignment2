@@ -110,8 +110,11 @@ Denormalized Fact Tables enhance query performance at the cost of storage redund
 **Conclusion & Next Steps**
 
 ✅ Enhance JSON Processing → Optimize JSON transformations for better structuring.
+
 ✅ Optimize Pipeline Efficiency → Improve Airflow scheduling and execution speed.
+
 ✅ Deploy for Real-World Testing → Implement in a live financial analysis environment.
+
 ✅ Assess Cost Efficiency → Compare long-term costs of different storage methods.
 
 This project demonstrates the feasibility of automating SEC financial statement processing and provides a scalable approach for financial data management.
