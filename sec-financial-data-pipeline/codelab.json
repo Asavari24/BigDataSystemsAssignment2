@@ -1,0 +1,25 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2025-03-13T16:48:24-04:00",
+  "id": "sec-financial-data-pipeline",
+  "duration": 0,
+  "title": "",
+  "authors": "Hishita Thakkar",
+  "summary": "Automated SEC Financial Data Extraction \u0026 Transformation System",
+  "source": "codelab.md",
+  "theme": "",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "dataengineering",
+    "cloud",
+    "aws"
+  ],
+  "tags": [],
+  "feedback": "https://github.com/Asavari24/BigDataSystemsAssignment2/issues",
+  "url": "sec-financial-data-pipeline"
+}

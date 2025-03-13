@@ -1,0 +1,183 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title></title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/claat-public/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="sec-financial-data-pipeline"
+                  title=""
+                  environment="web"
+                  feedback-link="https://github.com/Asavari24/BigDataSystemsAssignment2/issues">
+    
+      <google-codelab-step label="Overview" duration="0">
+        <p>This codelab will walk you through the implementation of an automated SEC Financial Data Extraction &amp; Transformation System. By the end, you will have a fully functional data pipeline that scrapes, transforms, and stores SEC financial data for querying and analysis.</p>
+<h2 class="checklist" is-upgraded>What you&#39;ll learn</h2>
+<ul class="checklist">
+<li>Scrape SEC financial datasets using Python &amp; BeautifulSoup.</li>
+<li>Store and transform financial data in S3 and Snowflake.</li>
+<li>Automate pipeline execution using Apache Airflow.</li>
+<li>Use DBT for schema validation and data transformation.</li>
+<li>Develop a FastAPI backend and a Streamlit UI for visualization.</li>
+</ul>
+<h2 is-upgraded>What you&#39;ll need</h2>
+<ul>
+<li>Basic knowledge of Python, SQL, and cloud computing.</li>
+<li>An AWS account with S3 and IAM setup.</li>
+<li>A Snowflake account for data storage.</li>
+<li>Apache Airflow and DBT installed.</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Step 1: Set Up Your Environment" duration="0">
+        <h2 is-upgraded>1.1 Clone the Repository</h2>
+<pre><code language="language-sh" class="language-sh">sudo su
+source venv/bin/activate
+git clone https://github.com/Asavari24/BigDataSystemsAssignment2.git
+cd BigDataSystemsAssignment2
+</code></pre>
+<h2 is-upgraded>1.2 Install Dependencies</h2>
+<pre><code language="language-sh" class="language-sh">pip install -r requirements.txt
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Step 2: Data Extraction &amp; Storage" duration="0">
+        <h2 is-upgraded>2.1 Scrape SEC Financial Data</h2>
+<ul>
+<li>Use BeautifulSoup to download ZIP files from the SEC website.</li>
+<li>Extract and store the data in an S3 bucket.</li>
+</ul>
+<pre><code language="language-python" class="language-python">from bs4 import BeautifulSoup
+import requests
+import boto3
+
+# Fetch SEC data
+url = &#34;https://www.sec.gov/data-research/sec-markets-data/financial-statement-data-sets&#34;
+response = requests.get(url)
+soup = BeautifulSoup(response.text, &#39;html.parser&#39;)
+
+# Upload to S3
+s3 = boto3.client(&#39;s3&#39;)
+s3.upload_file(&#34;financial_data.zip&#34;, &#34;big.data.ass3&#34;, &#34;scraped/financial_data.zip&#34;)
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Step 3: Data Transformation with DBT" duration="0">
+        <h2 is-upgraded>3.1 Define DBT Models</h2>
+<p>Create DBT models for staging and transformation.</p>
+<pre><code language="language-sql" class="language-sql">-- models/staging/sub.sql
+SELECT * FROM raw_data.sec_sub;
+</code></pre>
+<pre><code language="language-sql" class="language-sql">-- models/transformations/financial_data.sql
+SELECT cik, ticker, filing_date, revenue FROM staging.sub;
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Step 4: Automate Pipeline Execution with Apache Airflow" duration="0">
+        <h2 is-upgraded>4.1 Define an Airflow DAG</h2>
+<pre><code language="language-python" class="language-python">from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
+from datetime import datetime
+
+def extract_and_upload():
+    # Extraction logic
+    pass
+
+def transform_data():
+    # DBT transformations
+    pass
+
+def load_to_snowflake():
+    # Snowflake load logic
+    pass
+
+define_dag = DAG(
+    &#39;sec_data_pipeline&#39;,
+    schedule_interval=&#39;@daily&#39;,
+    start_date=datetime(2025, 3, 1),
+    catchup=False
+)
+
+extract_task = PythonOperator(task_id=&#39;extract&#39;, python_callable=extract_and_upload, dag=define_dag)
+transform_task = PythonOperator(task_id=&#39;transform&#39;, python_callable=transform_data, dag=define_dag)
+load_task = PythonOperator(task_id=&#39;load&#39;, python_callable=load_to_snowflake, dag=define_dag)
+
+extract_task &gt;&gt; transform_task &gt;&gt; load_task
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Step 5: Deploy FastAPI and Streamlit UI" duration="0">
+        <h2 is-upgraded>5.1 Start FastAPI</h2>
+<pre><code language="language-sh" class="language-sh">uvicorn backend.app:app --host 0.0.0.0 --port 8000 --reload
+</code></pre>
+<h2 is-upgraded>5.2 Start Streamlit UI</h2>
+<pre><code language="language-sh" class="language-sh">streamlit run frontend/main.py
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Step 6: Access the Application" duration="0">
+        <h2 is-upgraded>6.1 Streamlit UI</h2>
+<p>Access: <a href="http://3.130.104.76:8501/" target="_blank">Streamlit UI</a></p>
+<h2 is-upgraded>6.2 FastAPI Docs</h2>
+<p>Access: <a href="http://3.130.104.76:8000/docs" target="_blank">FastAPI Docs</a></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Conclusion" duration="0">
+        <p>Congratulations! 🎉 You have successfully built an automated SEC Financial Data Extraction &amp; Transformation System using Apache Airflow, DBT, Snowflake, FastAPI, and Streamlit.</p>
+<h2 is-upgraded>Next Steps</h2>
+<p>✅ Optimize JSON transformations for better structuring. ✅ Improve Airflow scheduling and execution speed. ✅ Deploy in a live financial analysis environment. ✅ Assess cost efficiency of different storage methods.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Resources" duration="0">
+        <ul>
+<li><a href="https://www.sec.gov/data-research/sec-markets-data/financial-statement-data-sets" target="_blank">SEC Financial Statement Data Sets</a></li>
+<li><a href="https://docs.getdbt.com/" target="_blank">DBT Documentation</a></li>
+<li><a href="https://airflow.apache.org/" target="_blank">Apache Airflow Documentation</a></li>
+</ul>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>
