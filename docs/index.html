@@ -1,0 +1,223 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>SEC Financial Statement Data Pipeline Codelab</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/claat-public/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14" ga4id=""></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  codelab-ga4id=""
+                  id="sec-financial-data-pipeline"
+                  title="SEC Financial Statement Data Pipeline Codelab"
+                  environment="web"
+                  feedback-link="https://your-feedback-link.com">
+    
+      <google-codelab-step label="Table of Contents" duration="0">
+        <ol type="1">
+<li><a href="#prerequisites" target="_blank">Prerequisites</a></li>
+<li><a href="#setup-instructions" target="_blank">Setup Instructions</a></li>
+<li><a href="#step-1-scraping-sec-financial-statement-data" target="_blank">Step 1: Scraping SEC Financial Statement Data</a></li>
+<li><a href="#step-2-data-storage-in-s3" target="_blank">Step 2: Data Storage in S3</a></li>
+<li><a href="#step-3-building-the-airflow-data-pipeline" target="_blank">Step 3: Building the Airflow Data Pipeline</a></li>
+<li><a href="#step-4-loading-data-into-snowflake" target="_blank">Step 4: Loading Data into Snowflake</a></li>
+<li><a href="#step-5-performing-dbt-transformations" target="_blank">Step 5: Performing DBT Transformations</a></li>
+<li><a href="#step-6-connecting-the-pipeline-to-fastapi-and-streamlit" target="_blank">Step 6: Connecting the Pipeline to FastAPI and Streamlit</a></li>
+<li><a href="#conclusion" target="_blank">Conclusion</a></li>
+</ol>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Step 1: Scraping SEC Financial Statement Data" duration="0">
+        <h2 is-upgraded><strong>Using BeautifulSoup to Scrape SEC Data</strong></h2>
+<p>Create <code>scrape_sec.py</code>:</p>
+<pre><code language="language-python" class="language-python">import requests
+from bs4 import BeautifulSoup
+import zipfile
+import os
+
+def download_sec_zip():
+    url = &#34;https://www.sec.gov/data-research/sec-markets-data/financial-statement-data-sets&#34;
+    headers = {&#39;User-Agent&#39;: &#39;Mozilla/5.0&#39;}
+    response = requests.get(url, headers=headers)
+    
+    soup = BeautifulSoup(response.content, &#39;html.parser&#39;)
+    links = soup.find_all(&#39;a&#39;, href=True)
+    zip_links = [link[&#39;href&#39;] for link in links if link[&#39;href&#39;].endswith(&#39;.zip&#39;)]
+    
+    for zip_link in zip_links[:1]:  # Download only the latest zip file
+        zip_url = f&#34;https://www.sec.gov{zip_link}&#34;
+        zip_name = zip_url.split(&#39;/&#39;)[-1]
+        
+        with open(zip_name, &#39;wb&#39;) as f:
+            f.write(requests.get(zip_url, headers=headers).content)
+
+        print(f&#34;Downloaded {zip_name}&#34;)
+
+if __name__ == &#34;__main__&#34;:
+    download_sec_zip()
+</code></pre>
+<p>Run the script:</p>
+<pre><code language="language-bash" class="language-bash">python scrape_sec.py
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Step 2: Data Storage in S3" duration="0">
+        <h2 is-upgraded><strong>Uploading Data to AWS S3</strong></h2>
+<p>Create <code>upload_s3.py</code>:</p>
+<pre><code language="language-python" class="language-python">import boto3
+
+def upload_to_s3(file_name, bucket, folder):
+    s3 = boto3.client(&#39;s3&#39;)
+    s3.upload_file(file_name, bucket, f&#34;{folder}/{file_name}&#34;)
+    print(f&#34;Uploaded {file_name} to S3 {bucket}/{folder}&#34;)
+
+if __name__ == &#34;__main__&#34;:
+    upload_to_s3(&#34;financial_data.zip&#34;, &#34;your-bucket-name&#34;, &#34;scraped_data&#34;)
+</code></pre>
+<p>Run the script:</p>
+<pre><code language="language-bash" class="language-bash">python upload_s3.py
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Step 3: Building the Airflow Data Pipeline" duration="0">
+        <p>Create <code>sec_data_pipeline.py</code>:</p>
+<pre><code language="language-python" class="language-python">from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
+from datetime import datetime
+from scrape_sec import download_sec_zip
+from upload_s3 import upload_to_s3
+
+def run_scraping():
+    download_sec_zip()
+    upload_to_s3(&#34;financial_data.zip&#34;, &#34;your-bucket-name&#34;, &#34;scraped_data&#34;)
+
+def run_snowflake_load():
+    pass
+
+def run_dbt_transform():
+    pass
+
+def run_final_integration():
+    pass
+
+default_args = {&#34;start_date&#34;: datetime(2024, 1, 1)}
+
+dag = DAG(&#34;sec_data_pipeline&#34;, default_args=default_args, schedule_interval=&#34;@daily&#34;)
+
+scraping_task = PythonOperator(task_id=&#34;scrape_data&#34;, python_callable=run_scraping, dag=dag)
+snowflake_task = PythonOperator(task_id=&#34;load_snowflake&#34;, python_callable=run_snowflake_load, dag=dag)
+dbt_task = PythonOperator(task_id=&#34;dbt_transform&#34;, python_callable=run_dbt_transform, dag=dag)
+final_task = PythonOperator(task_id=&#34;final_integration&#34;, python_callable=run_final_integration, dag=dag)
+
+scraping_task &gt;&gt; snowflake_task &gt;&gt; dbt_task &gt;&gt; final_task
+</code></pre>
+<p>Run Airflow:</p>
+<pre><code language="language-bash" class="language-bash">airflow dags list
+airflow dags trigger sec_data_pipeline
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Step 4: Loading Data into Snowflake" duration="0">
+        <pre><code language="language-python" class="language-python">import snowflake.connector
+
+def load_data_to_snowflake():
+    conn = snowflake.connector.connect(
+        user=&#39;your-user&#39;,
+        password=&#39;your-password&#39;,
+        account=&#39;your-account&#39;
+    )
+    cur = conn.cursor()
+    cur.execute(&#34;COPY INTO financial_statements FROM @s3_stage;&#34;)
+    conn.close()
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Step 5: Performing DBT Transformations" duration="0">
+        <pre><code language="language-sql" class="language-sql">SELECT * FROM financial_statements WHERE year = 2024;
+</code></pre>
+<p>Run DBT:</p>
+<pre><code language="language-bash" class="language-bash">dbt run
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Step 6: Connecting to FastAPI &amp; Streamlit" duration="0">
+        <h2 is-upgraded><strong>FastAPI Backend</strong></h2>
+<p>Create <code>fastapi_service.py</code>:</p>
+<pre><code language="language-python" class="language-python">from fastapi import FastAPI
+app = FastAPI()
+
+@app.get(&#34;/data&#34;)
+def get_data():
+    return {&#34;message&#34;: &#34;Financial Data Retrieved&#34;}
+</code></pre>
+<h2 is-upgraded><strong>Streamlit Frontend</strong></h2>
+<p>Create <code>streamlit_dashboard.py</code>:</p>
+<pre><code language="language-python" class="language-python">import streamlit as st
+st.title(&#34;SEC Financial Data Dashboard&#34;)
+st.write(&#34;Displaying financial data here...&#34;)
+</code></pre>
+<p>Run:</p>
+<pre><code language="language-bash" class="language-bash">streamlit run app.py
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Conclusion" duration="0">
+        <p>You have successfully built a <strong>data pipeline</strong> for scraping SEC financial data, transforming it with Airflow and DBT, storing it in Snowflake, and integrating it with FastAPI and Streamlit!</p>
+<p>Happy coding! 🚀</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Additional Resources" duration="0">
+        <ul>
+<li><a href="https://www.sec.gov/data" target="_blank">SEC Data Repository</a></li>
+<li><a href="https://docs.aws.amazon.com/s3/" target="_blank">AWS S3 Docs</a></li>
+<li><a href="https://docs.snowflake.com/" target="_blank">Snowflake Docs</a></li>
+<li><a href="https://airflow.apache.org/" target="_blank">Apache Airflow</a></li>
+<li><a href="https://docs.getdbt.com/" target="_blank">DBT</a></li>
+<li><a href="https://fastapi.tiangolo.com/" target="_blank">FastAPI</a></li>
+<li><a href="https://docs.streamlit.io/" target="_blank">Streamlit</a></li>
+</ul>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>

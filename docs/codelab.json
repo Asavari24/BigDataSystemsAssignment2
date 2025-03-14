@@ -1,0 +1,26 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2025-02-14T15:20:44-05:00",
+  "id": "sec-financial-data-pipeline",
+  "duration": 0,
+  "title": "SEC Financial Statement Data Pipeline Codelab",
+  "authors": "Hishita Thakkar",
+  "summary": "SEC Financial Data Pipeline",
+  "source": "codelab-a2.md",
+  "theme": "",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "dataengineering",
+    "cloud",
+    "aws",
+    "snowflake"
+  ],
+  "tags": [],
+  "feedback": "https://your-feedback-link.com",
+  "url": "sec-financial-data-pipeline"
+}
