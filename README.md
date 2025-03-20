@@ -4,7 +4,7 @@
 
 This project automates the extraction, transformation, and storage of SEC Financial Statement Data Sets to support financial analysts in fundamental analysis. The pipeline is built using Apache Airflow for automation, DBT for data transformation, Snowflake for storage, and a FastAPI backend connected to a Streamlit web interface for querying financial data.
 
-Codelab:
+Codelab: https://asavari24.github.io/BigDataSystemsAssignment2/#0
 
 Video: https://youtu.be/P9veLATRREw
 
